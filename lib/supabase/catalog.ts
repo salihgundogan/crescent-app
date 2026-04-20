@@ -83,6 +83,7 @@ function mapProducts(rows: ProductRow[]) {
     isAvailable: product.is_available,
     options:
       product.product_options?.map((option) => ({
+        id: option.id,
         label: option.label,
         detail: option.detail || "Secenek detayi belirtilmedi",
         price: Number(option.price),

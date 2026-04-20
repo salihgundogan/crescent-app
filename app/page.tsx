@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { highlightedPolicies } from "@/lib/mock-data";
 import { getHomepageCatalogData } from "@/lib/supabase/catalog";
 
@@ -8,6 +9,14 @@ function formatPrice(price: number) {
     currency: "TRY",
     maximumFractionDigits: 0,
   }).format(price);
+}
+
+function getOptionId(option: unknown) {
+  if (option && typeof option === "object" && "id" in option) {
+    const value = (option as { id?: string | null }).id;
+    return value ?? null;
+  }
+  return null;
 }
 
 export default async function Home() {
@@ -31,6 +40,12 @@ export default async function Home() {
               className="rounded-full border border-line bg-white px-4 py-2 text-foreground transition hover:border-accent hover:text-accent"
             >
               Uye ol
+            </Link>
+            <Link
+              href="/sepet"
+              className="rounded-full border border-line bg-white px-4 py-2 text-foreground transition hover:border-accent hover:text-accent"
+            >
+              Sepet
             </Link>
             <Link
               href="#urunler"
@@ -272,14 +287,15 @@ export default async function Home() {
                     ? product.options
                     : [
                         {
+                          id: null,
                           label: "Secenek bekleniyor",
                           detail: "Admin panelinden secenek ekleyin",
                           price: 0,
                         },
                       ]
-                  ).map((option) => (
+                  ).map((option, index) => (
                     <div
-                      key={option.label}
+                      key={`${option.label}-${index}`}
                       className="flex items-center justify-between rounded-2xl border border-line bg-surface-strong px-4 py-3"
                     >
                       <div>
@@ -293,9 +309,17 @@ export default async function Home() {
                   ))}
                 </div>
                 <div className="mt-5 flex gap-3">
-                  <button className="flex-1 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-accent-strong">
-                    Sepete ekle
-                  </button>
+                  <AddToCartButton
+                    item={{
+                      productId: product.id,
+                      optionId: getOptionId(product.options[0]),
+                      name: product.name,
+                      category: product.category,
+                      optionLabel: product.options[0]?.label || "Standart",
+                      optionDetail: product.options[0]?.detail || "",
+                      unitPrice: product.options[0]?.price || 0,
+                    }}
+                  />
                   <button className="rounded-full border border-line px-4 py-3 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent">
                     Favori
                   </button>
