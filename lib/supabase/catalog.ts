@@ -26,11 +26,33 @@ type ProductOptionRow = {
 type ProductRow = {
   id: string;
   name: string;
+  slug?: string;
   description: string | null;
   is_available: boolean;
   category_id: string | null;
   categories: { name: string }[] | null;
   product_options: ProductOptionRow[] | null;
+};
+
+export type AdminCategory = {
+  id: string;
+  name: string;
+  sortOrder: number;
+};
+
+export type AdminProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  isAvailable: boolean;
+  categoryName: string;
+  options: {
+    id: string;
+    label: string;
+    detail: string;
+    price: number;
+  }[];
 };
 
 function toHourMinute(value: string) {
@@ -130,5 +152,51 @@ export async function getAdminCatalogSummary() {
     branchesCount,
     productsCount,
     categoriesCount,
+  };
+}
+
+export async function getAdminCatalogData() {
+  const supabase = await createSupabaseServerClient();
+
+  const [categoriesResult, productsResult] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("id, name, sort_order")
+      .eq("is_active", true)
+      .order("sort_order"),
+    supabase
+      .from("products")
+      .select(
+        "id, name, slug, description, is_available, categories(name), product_options(id, label, detail, price, sort_order)",
+      )
+      .eq("is_active", true)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const categories: AdminCategory[] = (categoriesResult.data || []).map((category) => ({
+    id: category.id,
+    name: category.name,
+    sortOrder: category.sort_order,
+  }));
+
+  const products: AdminProduct[] = (productsResult.data || []).map((product) => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    description: product.description || "",
+    isAvailable: product.is_available,
+    categoryName: product.categories?.[0]?.name || "Kategorisiz",
+    options:
+      product.product_options?.map((option) => ({
+        id: option.id,
+        label: option.label,
+        detail: option.detail || "",
+        price: Number(option.price),
+      })) || [],
+  }));
+
+  return {
+    categories,
+    products,
   };
 }

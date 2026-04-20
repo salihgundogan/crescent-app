@@ -1,5 +1,15 @@
 import { branches as fallbackBranches, recentOrders } from "@/lib/mock-data";
-import { getAdminCatalogSummary, getHomepageCatalogData } from "@/lib/supabase/catalog";
+import {
+  getAdminCatalogData,
+  getAdminCatalogSummary,
+  getHomepageCatalogData,
+} from "@/lib/supabase/catalog";
+import {
+  createCategoryAction,
+  createProductAction,
+  deleteProductAction,
+  toggleProductAvailabilityAction,
+} from "@/app/admin/actions";
 
 function badgeColor(status: string) {
   switch (status) {
@@ -15,9 +25,10 @@ function badgeColor(status: string) {
 }
 
 export default async function AdminPage() {
-  const [{ branches }, summary] = await Promise.all([
+  const [{ branches }, summary, catalog] = await Promise.all([
     getHomepageCatalogData(),
     getAdminCatalogSummary(),
+    getAdminCatalogData(),
   ]);
 
   const adminSummary = [
@@ -51,10 +62,12 @@ export default async function AdminPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">
           Admin paneli
         </p>
-        <h1 className="mt-3 font-display text-4xl">Iki admin, tek panel, tum siparisler.</h1>
+        <h1 className="mt-3 font-display text-4xl">
+          Iki admin, tek panel, urunleri simdi canli yonetim.
+        </h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-white/80">
-          Sube, kategori ve urun ozetleri artik Supabase verileriyle doluyor.
-          Siparis kismini bir sonraki adimda gercek veriye baglayacagiz.
+          Bu ekranda kategori ekleyebilir, yeni urun acabilir, urunleri var/yok
+          yapabilir ve silebilirsin.
         </p>
       </div>
 
@@ -111,7 +124,7 @@ export default async function AdminPage() {
               </h2>
             </div>
             <div className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-muted">
-              Siparisler bir sonraki adimda gercek veriden
+              Siparis entegrasyonu siradaki adim
             </div>
           </div>
           <div className="mt-5 space-y-3">
@@ -146,6 +159,198 @@ export default async function AdminPage() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-2">
+        <div className="rounded-[30px] border border-line bg-surface px-6 py-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-accent">
+            Kategori ekle
+          </p>
+          <form action={createCategoryAction} className="mt-4 space-y-3">
+            <input
+              type="text"
+              name="name"
+              placeholder="Kategori adi"
+              required
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm text-foreground outline-none focus:border-accent"
+            />
+            <input
+              type="number"
+              name="sortOrder"
+              placeholder="Sira (orn: 10)"
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm text-foreground outline-none focus:border-accent"
+            />
+            <button
+              type="submit"
+              className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-strong"
+            >
+              Kategori ekle
+            </button>
+          </form>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {catalog.categories.map((category) => (
+              <span
+                key={category.id}
+                className="rounded-full border border-line bg-white px-3 py-1 text-xs font-semibold text-muted"
+              >
+                {category.name}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[30px] border border-line bg-surface px-6 py-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-accent">
+            Yeni urun ekle
+          </p>
+          <form action={createProductAction} className="mt-4 grid gap-3">
+            <input
+              type="text"
+              name="name"
+              placeholder="Urun adi"
+              required
+              className="rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+            />
+            <textarea
+              name="description"
+              placeholder="Urun aciklamasi (opsiyonel)"
+              className="min-h-24 rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+            />
+            <select
+              name="categoryId"
+              className="rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+              defaultValue=""
+            >
+              <option value="">Kategori sec (opsiyonel)</option>
+              {catalog.categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <div className="grid gap-3 rounded-2xl border border-line bg-white p-4 md:grid-cols-2">
+              <input
+                type="text"
+                name="option1Label"
+                placeholder="Secenek 1 ad (zorunlu)"
+                required
+                className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                name="option1Price"
+                placeholder="Secenek 1 fiyat (zorunlu)"
+                required
+                className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <input
+                type="text"
+                name="option1Detail"
+                placeholder="Secenek 1 detay"
+                className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <div className="hidden md:block" />
+              <input
+                type="text"
+                name="option2Label"
+                placeholder="Secenek 2 ad (opsiyonel)"
+                className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                name="option2Price"
+                placeholder="Secenek 2 fiyat (opsiyonel)"
+                className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <input
+                type="text"
+                name="option2Detail"
+                placeholder="Secenek 2 detay"
+                className="rounded-xl border border-line px-3 py-2 text-sm outline-none focus:border-accent md:col-span-2"
+              />
+            </div>
+            <button
+              type="submit"
+              className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-strong"
+            >
+              Urunu kaydet
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section className="rounded-[30px] border border-line bg-surface px-6 py-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-accent">
+            Urun listesi
+          </p>
+          <span className="rounded-full border border-line bg-white px-3 py-1 text-xs font-semibold text-muted">
+            {catalog.products.length} urun
+          </span>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {catalog.products.map((product) => (
+            <article
+              key={product.id}
+              className="rounded-[24px] border border-line bg-white px-4 py-4"
+            >
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">
+                    {product.categoryName}
+                  </p>
+                  <h3 className="mt-1 text-2xl font-semibold text-foreground">{product.name}</h3>
+                  <p className="mt-2 text-sm leading-7 text-muted">{product.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {product.options.map((option) => (
+                      <span
+                        key={option.id}
+                        className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-muted"
+                      >
+                        {option.label} - {option.price} TL
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <form action={toggleProductAvailabilityAction}>
+                    <input type="hidden" name="productId" value={product.id} />
+                    <input
+                      type="hidden"
+                      name="currentValue"
+                      value={String(product.isAvailable)}
+                    />
+                    <button
+                      type="submit"
+                      className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                        product.isAvailable
+                          ? "bg-[#dff0dd] text-[#255a36]"
+                          : "bg-[#fff1d8] text-[#91590d]"
+                      }`}
+                    >
+                      {product.isAvailable ? "Var -> Yok yap" : "Yok -> Var yap"}
+                    </button>
+                  </form>
+                  <form action={deleteProductAction}>
+                    <input type="hidden" name="productId" value={product.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full bg-[#4b2020] px-3 py-2 text-xs font-semibold text-white"
+                    >
+                      Urunu sil
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
     </main>
