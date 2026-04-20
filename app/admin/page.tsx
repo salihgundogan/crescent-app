@@ -1,4 +1,5 @@
-import { adminSummary, branches, recentOrders } from "@/lib/mock-data";
+import { branches as fallbackBranches, recentOrders } from "@/lib/mock-data";
+import { getAdminCatalogSummary, getHomepageCatalogData } from "@/lib/supabase/catalog";
 
 function badgeColor(status: string) {
   switch (status) {
@@ -13,7 +14,37 @@ function badgeColor(status: string) {
   }
 }
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const [{ branches }, summary] = await Promise.all([
+    getHomepageCatalogData(),
+    getAdminCatalogSummary(),
+  ]);
+
+  const adminSummary = [
+    {
+      label: "Toplam urun",
+      value: String(summary.productsCount),
+      detail: "Var / yok mantigi ile yonetilecek",
+    },
+    {
+      label: "Aktif kategori",
+      value: String(summary.categoriesCount),
+      detail: "Admin panelinden serbest yonetim",
+    },
+    {
+      label: "Sube",
+      value: String(summary.branchesCount),
+      detail: "Iki admin hepsini gorur",
+    },
+    {
+      label: "Odeme tipi",
+      value: "2",
+      detail: "Dukkanda odeme + online odeme",
+    },
+  ];
+
+  const branchCards = branches.length ? branches : fallbackBranches;
+
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-8 md:px-10">
       <div className="rounded-[32px] border border-line bg-[#1b4b31] px-6 py-8 text-white">
@@ -22,8 +53,8 @@ export default function AdminPage() {
         </p>
         <h1 className="mt-3 font-display text-4xl">Iki admin, tek panel, tum siparisler.</h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-white/80">
-          Bu ilk taslakta iki admin de tum urunleri, siparisleri ve subeleri gorur.
-          Bir sonraki adimda Supabase auth ve rol kontrolu baglanacak.
+          Sube, kategori ve urun ozetleri artik Supabase verileriyle doluyor.
+          Siparis kismini bir sonraki adimda gercek veriye baglayacagiz.
         </p>
       </div>
 
@@ -48,7 +79,7 @@ export default function AdminPage() {
             Sube ayarlari
           </p>
           <div className="mt-4 space-y-4">
-            {branches.map((branch) => (
+            {branchCards.map((branch) => (
               <div
                 key={branch.id}
                 className="rounded-[24px] border border-line bg-white px-4 py-4"
@@ -62,7 +93,6 @@ export default function AdminPage() {
                     <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent-strong">
                       {branch.hours}
                     </span>
-                    <p className="mt-3 text-sm text-muted">{branch.managerLabel}</p>
                   </div>
                 </div>
               </div>
@@ -81,7 +111,7 @@ export default function AdminPage() {
               </h2>
             </div>
             <div className="rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-muted">
-              Tum siparisler gorunur
+              Siparisler bir sonraki adimda gercek veriden
             </div>
           </div>
           <div className="mt-5 space-y-3">
@@ -99,7 +129,7 @@ export default function AdminPage() {
                       {order.customer}
                     </h3>
                     <p className="mt-2 text-sm text-muted">
-                      {order.branch} • {order.paymentMethod}
+                      {order.branch} | {order.paymentMethod}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">

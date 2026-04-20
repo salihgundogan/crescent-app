@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { branches, categories, featuredProducts, highlightedPolicies } from "@/lib/mock-data";
+import { highlightedPolicies } from "@/lib/mock-data";
+import { getHomepageCatalogData } from "@/lib/supabase/catalog";
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("tr-TR", {
@@ -9,7 +10,9 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
-export default function Home() {
+export default async function Home() {
+  const { branches, categories, products } = await getHomepageCatalogData();
+
   return (
     <main className="grain">
       <section className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-6 md:px-10">
@@ -240,7 +243,7 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
-            {featuredProducts.map((product) => (
+            {products.map((product) => (
               <article
                 key={product.id}
                 className="group rounded-[30px] border border-line bg-white p-4 transition hover:-translate-y-1 hover:border-accent"
@@ -265,7 +268,16 @@ export default function Home() {
                 </div>
                 <p className="mt-4 text-sm leading-7 text-muted">{product.description}</p>
                 <div className="mt-5 space-y-3">
-                  {product.options.map((option) => (
+                  {(product.options.length
+                    ? product.options
+                    : [
+                        {
+                          label: "Secenek bekleniyor",
+                          detail: "Admin panelinden secenek ekleyin",
+                          price: 0,
+                        },
+                      ]
+                  ).map((option) => (
                     <div
                       key={option.label}
                       className="flex items-center justify-between rounded-2xl border border-line bg-surface-strong px-4 py-3"
