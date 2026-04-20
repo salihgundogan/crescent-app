@@ -24,6 +24,12 @@ export default function Home() {
           </div>
           <div className="flex flex-wrap gap-3 text-sm font-semibold">
             <Link
+              href="/kayit"
+              className="rounded-full border border-line bg-white px-4 py-2 text-foreground transition hover:border-accent hover:text-accent"
+            >
+              Uye ol
+            </Link>
+            <Link
               href="#urunler"
               className="rounded-full border border-line bg-white px-4 py-2 text-foreground transition hover:border-accent hover:text-accent"
             >
@@ -299,7 +305,7 @@ export default function Home() {
               {[
                 "Next.js App Router ile storefront ve admin panel",
                 "Supabase Postgres + Storage + Auth",
-                "Musteri auth: telefon + sifre, admin auth: email + sifre",
+                "Musteri auth: telefon + sifre, arka planda gizli email auth",
                 "Faz 2 odeme: iyzico Checkout Form",
                 "Play Store hedefi icin daha sonra mobil kabuk veya React Native",
               ].map((item) => (

@@ -151,10 +151,16 @@ gibi serbest secenekler tanimlar.
 
 ## Auth karari
 
-- Musteri auth: telefon + sifre
+- Musteri arayuzu: telefon + sifre + ad soyad
+- Supabase auth: sistem icinde uretilen gizli email + sifre
 - Admin auth: email + sifre
 
-Bu ayrim hem admin panelini daha guvenli tutar hem de musteri akisini basitlestirir.
+Bu model SMS saglayicisi olmadan telefon odakli bir deneyim verir.
+
+## Sifre unutma
+
+- Ilk surumde otomatik SMS veya email reset yok.
+- Admin paneli tarafinda destekli sifre yenileme akisi planlanacak.
 
 ## Sonraki teknik isler
 

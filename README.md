@@ -12,6 +12,8 @@ Iki subeli baharat dukkanlari icin gelistirilen siparis ve admin yonetim projesi
 - Favoriler sadece uye kullanicida vardir.
 - Faz 1 odeme tipi: `dukkanda odeme`
 - Faz 2 odeme tipi: `iyzico ile online odeme`
+- Musteri girisi: `telefon + sifre + ad soyad`
+- Supabase auth tarafinda kullanicinin gormedigi `email + sifre` kaydi uretilir.
 
 ## Teknoloji karari
 
@@ -19,7 +21,7 @@ Iki subeli baharat dukkanlari icin gelistirilen siparis ve admin yonetim projesi
 - Backend: Next.js server actions / route handlers
 - Database: Supabase Postgres
 - Auth:
-  - Musteri: telefon + sifre
+  - Musteri: telefon + sifre arayuzu, Supabase'de gizli email auth
   - Admin: email + sifre
 - Dosya yukleme: Supabase Storage
 - Odeme entegrasyonu: Faz 2'de iyzico Checkout Form
@@ -27,6 +29,9 @@ Iki subeli baharat dukkanlari icin gelistirilen siparis ve admin yonetim projesi
 ## Sayfalar
 
 - `/` vitrin ana sayfasi
+- `/giris` musteri giris sayfasi
+- `/kayit` musteri kayit sayfasi
+- `/hesabim` aktif musteri oturumu ozeti
 - `/siparis-takip` siparis no veya telefonla siparis durumu sorgulama
 - `/admin` admin paneli ilk taslak
 
@@ -62,3 +67,4 @@ Sonra [http://localhost:3000](http://localhost:3000) adresini ac.
 - Gizli bilgiler `.env.local` dosyasinda tutulur.
 - Ornek degiskenler `.env.example` icindedir.
 - Ilk tablo ve policy kurulumu icin [docs/supabase-schema.sql](/C:/dosyalar_desktop/codex-dukkanapp/docs/supabase-schema.sql) dosyasini Supabase SQL Editor'da calistir.
+- SMS provider gerekmeden musteri auth akisi icin telefon numarasini sistem icinde gizli bir auth email'ine donusturuyoruz.
