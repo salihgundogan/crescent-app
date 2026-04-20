@@ -56,3 +56,9 @@ Sonra [http://localhost:3000](http://localhost:3000) adresini ac.
 - Ilk surumde fis/fatura entegrasyonu yok.
 - Politika metni: `Iade yoktur, degisim vardir.`
 - WhatsApp otomasyonu ilk surumde zorunlu degil; admin panelinde mesaj baslatma daha guvenli.
+
+## Supabase kurulum
+
+- Gizli bilgiler `.env.local` dosyasinda tutulur.
+- Ornek degiskenler `.env.example` icindedir.
+- Ilk tablo ve policy kurulumu icin [docs/supabase-schema.sql](/C:/dosyalar_desktop/codex-dukkanapp/docs/supabase-schema.sql) dosyasini Supabase SQL Editor'da calistir.
